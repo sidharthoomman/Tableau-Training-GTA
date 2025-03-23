@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jacob & Sidharth's Weight Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f4f4f9;
+    }
+    h1 {
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.5rem;
+      text-align: center;
+    }
+    input[type="number"] {
+      width: 80px;
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    canvas {
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>Jacob & Sidharth's Weight Tracker</h1>
+  <div class="controls">
+    <button onclick="addNewRow()">Add New Entry</button>
+    <button onclick="syncToSheet()">Sync to Google Sheet</button>
+    <input type="number" id="jacobTarget" placeholder="Jacob Target" />
+    <input type="number" id="sidharthTarget" placeholder="Sidharth Target" />
+    <button onclick="updateTargets()">Update Targets</button>
+  </div>
+
+  <table id="weightTable">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Jacob (kg)</th>
+        <th>Sidharth (kg)</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <canvas id="weightChart"></canvas>
+
+  <script>
+    const SHEET_URL = "https://script.google.com/macros/s/AKfycbw7-s97M5zKlM7g-PMpOsTmomnYvejVBXnO1puauDibqfCb3pnMyxrxA9PBYFdYLDHpmw/exec";
+
+    let chart;
+    let tableData = [];
+    let jacobTarget = null;
+    let sidharthTarget = null;
+
+    function loadData() {
+      fetch(SHEET_URL)
+        .then(res => res.json())
+        .then(data => {
+          tableData = data.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+          renderTable();
+          renderChart();
+        });
+    }
+
+    function renderTable() {
+      const tbody = document.querySelector("#weightTable tbody");
+      tbody.innerHTML = "";
+      tableData.forEach((row, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><input type="date" value="${row.Date}" onchange="updateCell(${i}, 'Date', this.value)"/></td>
+          <td><input type="number" value="${row.Jacob}" onchange="updateCell(${i}, 'Jacob', this.value)"/></td>
+          <td><input type="number" value="${row.Sidharth}" onchange="updateCell(${i}, 'Sidharth', this.value)"/></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateCell(index, key, value) {
+      tableData[index][key] = value;
+      renderChart();
+    }
+
+    function addNewRow() {
+      const today = new Date().toISOString().split('T')[0];
+      tableData.unshift({ Date: today, Jacob: "", Sidharth: "" });
+      renderTable();
+    }
+
+    function syncToSheet() {
+      fetch(SHEET_URL, {
+        method: "POST",
+        body: JSON.stringify(tableData),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+      .then(res => res.text())
+      .then(msg => alert("Synced to Google Sheet!"))
+      .catch(err => alert("Sync failed"));
+    }
+
+    function updateTargets() {
+      jacobTarget = parseFloat(document.getElementById("jacobTarget").value);
+      sidharthTarget = parseFloat(document.getElementById("sidharthTarget").value);
+      renderChart();
+    }
+
+    function renderChart() {
+      const labels = tableData.map(row => row.Date).reverse();
+      const jacobData = tableData.map(row => parseFloat(row.Jacob) || null).reverse();
+      const sidharthData = tableData.map(row => parseFloat(row.Sidharth) || null).reverse();
+
+      const forecast = (data) => {
+        const points = data
+          .map((y, i) => [i, y])
+          .filter(p => !isNaN(p[1]));
+        if (points.length < 2) return [];
+        const n = points.length;
+        const sumX = points.reduce((sum, p) => sum + p[0], 0);
+        const sumY = points.reduce((sum, p) => sum + p[1], 0);
+        const sumXY = points.reduce((sum, p) => sum + p[0] * p[1], 0);
+        const sumX2 = points.reduce((sum, p) => sum + p[0] * p[0], 0);
+        const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+        const intercept = (sumY - slope * sumX) / n;
+
+        const forecastPoints = [];
+        for (let i = data.length; i < data.length + 8; i++) {
+          forecastPoints.push(intercept + slope * i);
+        }
+        return forecastPoints;
+      }
+
+      const jacobForecast = forecast(jacobData);
+      const sidharthForecast = forecast(sidharthData);
+
+      const extendedLabels = [...labels, ...Array(jacobForecast.length).fill(0).map((_, i) => `+${i+1}w`)];
+
+      if (chart) chart.destroy();
+      chart = new Chart(document.getElementById("weightChart"), {
+        type: 'line',
+        data: {
+          labels: extendedLabels,
+          datasets: [
+            {
+              label: 'Jacob',
+              data: [...jacobData, ...jacobForecast],
+              borderColor: 'blue',
+              tension: 0.3,
+              pointRadius: 2
+            },
+            {
+              label: 'Sidharth',
+              data: [...sidharthData, ...sidharthForecast],
+              borderColor: 'green',
+              tension: 0.3,
+              pointRadius: 2
+            },
+            ...(jacobTarget ? [{
+              label: 'Jacob Target',
+              data: Array(extendedLabels.length).fill(jacobTarget),
+              borderColor: 'blue',
+              borderDash: [5, 5],
+              pointRadius: 0
+            }] : []),
+            ...(sidharthTarget ? [{
+              label: 'Sidharth Target',
+              data: Array(extendedLabels.length).fill(sidharthTarget),
+              borderColor: 'green',
+              borderDash: [5, 5],
+              pointRadius: 0
+            }] : [])
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'top' },
+            title: { display: true, text: 'Weight Trends with Forecast & Targets' }
+          }
+        }
+      });
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
