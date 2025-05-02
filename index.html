@@ -3,204 +3,183 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jacob & Sidharth's Weight Tracker</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>Tableau Data Analyst Training</title>
+  <link rel="stylesheet" href="style.css" />
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 2rem;
-      background: #f4f4f9;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f9f9f9;
+      color: #333;
     }
-    h1 {
-      text-align: center;
+
+    header {
+      background: #1f3f5b;
+      color: white;
+      padding: 1rem 0;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 2rem;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 0.5rem;
-      text-align: center;
-    }
-    input[type="number"] {
-      width: 80px;
-    }
-    .controls {
+
+    header .container {
       display: flex;
-      justify-content: center;
-      gap: 1rem;
-      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    .logo {
+      height: 40px;
+    }
+
+    nav a {
+      color: white;
+      margin-left: 20px;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .hero {
+      background: #e5f0f9;
+      padding: 3rem 1rem;
+      text-align: center;
+    }
+
+    .hero img {
+      max-width: 100%;
+      height: auto;
       margin-bottom: 1rem;
     }
-    canvas {
-      max-width: 100%;
+
+    .section {
+      padding: 2rem 1rem;
+    }
+
+    .light {
+      background: #f0f5f9;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      color: #1f3f5b;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    form input, form textarea {
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    form input[type="submit"] {
+      background: #f9a825;
+      border: none;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    form input[type="submit"]:hover {
+      background: #f57f17;
+    }
+
+    footer {
+      background: #1f3f5b;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    a {
+      color: #007bc1;
     }
   </style>
 </head>
 <body>
-  <h1>Jacob & Sidharth's Weight Tracker</h1>
-  <div class="controls">
-    <button onclick="addNewRow()">Add New Entry</button>
-    <button onclick="syncToSheet()">Sync to Google Sheet</button>
-    <input type="number" id="jacobTarget" placeholder="Jacob Target" />
-    <input type="number" id="sidharthTarget" placeholder="Sidharth Target" />
-    <button onclick="updateTargets()">Update Targets</button>
-  </div>
+  <header>
+    <div class="container">
+      <img src="https://www.tableau.com/sites/default/files/pages/tableau_rgb_500px.png" alt="Tableau Logo" class="logo" />
+      <nav>
+        <a href="#about">About</a>
+        <a href="#details">Course Details</a>
+        <a href="#instructor">Instructor</a>
+        <a href="#schedule">Schedule</a>
+        <a href="#register">Register</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
 
-  <table id="weightTable">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Jacob (kg)</th>
-        <th>Sidharth (kg)</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <section id="about" class="hero">
+    <div class="container">
+      <img src="https://cdn.pixabay.com/photo/2017/01/10/19/05/chart-1973777_1280.png" alt="Data Visualization" />
+      <h1>Tableau Data Analyst Training</h1>
+      <p>Engaging online classes limited to 10 students per session. Hands-on workspace for learning Tableau. Prepares students for Tableau Desktop Analyst Certification.</p>
+    </div>
+  </section>
 
-  <canvas id="weightChart"></canvas>
+  <section id="details" class="section">
+    <div class="container">
+      <h2>Course Details</h2>
+      <p>Designed for college graduates and entry-level analysts. 4-week agenda covering Tableau fundamentals and certification preparation.</p>
+      <ul>
+        <li>Week 1: Introduction to Tableau</li>
+        <li>Week 2: Data Visualization</li>
+        <li>Week 3: Calculations & Analytics</li>
+        <li>Week 4: Certification Prep</li>
+      </ul>
+      <p><strong>Cost:</strong> $500 CAD + $250 for certification (refunded if not certified)</p>
+    </div>
+  </section>
 
-  <script>
-    const SHEET_URL = "https://script.google.com/macros/s/AKfycbw7-s97M5zKlM7g-PMpOsTmomnYvejVBXnO1puauDibqfCb3pnMyxrxA9PBYFdYLDHpmw/exec";
+  <section id="instructor" class="section light">
+    <div class="container">
+      <h2>Instructor</h2>
+      <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="Instructor" style="width: 150px; border-radius: 50%; margin-bottom: 1rem;" />
+      <p>Experienced Tableau Analyst with background in Business Intelligence. Certified in Tableau Desktop Specialist and Tableau Server.</p>
+    </div>
+  </section>
 
-    let chart;
-    let tableData = [];
-    let jacobTarget = null;
-    let sidharthTarget = null;
+  <section id="schedule" class="section">
+    <div class="container">
+      <h2>Course Schedule</h2>
+      <p>New classes start every week. No prior software experience required. Tableau Public will be used throughout the course.</p>
+    </div>
+  </section>
 
-    function loadData() {
-      fetch(SHEET_URL)
-        .then(res => res.json())
-        .then(data => {
-          tableData = data.sort((a, b) => new Date(b.Date) - new Date(a.Date));
-          renderTable();
-          renderChart();
-        });
-    }
+  <section id="register" class="section light">
+    <div class="container">
+      <h2>Register</h2>
+      <form action="mailto:lateralwork@gmail.com" method="post" enctype="text/plain">
+        <input type="text" name="name" placeholder="Your Name" required />
+        <input type="email" name="email" placeholder="Your Email" required />
+        <textarea name="message" placeholder="Why are you interested in this course?" required></textarea>
+        <input type="submit" value="Sign Up" />
+      </form>
+    </div>
+  </section>
 
-    function renderTable() {
-      const tbody = document.querySelector("#weightTable tbody");
-      tbody.innerHTML = "";
-      tableData.forEach((row, i) => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td><input type="date" value="${row.Date}" onchange="updateCell(${i}, 'Date', this.value)"/></td>
-          <td><input type="number" value="${row.Jacob}" onchange="updateCell(${i}, 'Jacob', this.value)"/></td>
-          <td><input type="number" value="${row.Sidharth}" onchange="updateCell(${i}, 'Sidharth', this.value)"/></td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
+  <section id="contact" class="section">
+    <div class="container">
+      <h2>Contact</h2>
+      <p>Find me on <a href="https://www.linkedin.com/in/sidharth84/" target="_blank">LinkedIn</a></p>
+    </div>
+  </section>
 
-    function updateCell(index, key, value) {
-      tableData[index][key] = value;
-      renderChart();
-    }
-
-    function addNewRow() {
-      const today = new Date().toISOString().split('T')[0];
-      tableData.unshift({ Date: today, Jacob: "", Sidharth: "" });
-      renderTable();
-    }
-
-    function syncToSheet() {
-      fetch(SHEET_URL, {
-        method: "POST",
-        body: JSON.stringify(tableData),
-        headers: {
-          "Content-Type": "application/json"
-        }
-      })
-      .then(res => res.text())
-      .then(msg => alert("Synced to Google Sheet!"))
-      .catch(err => alert("Sync failed"));
-    }
-
-    function updateTargets() {
-      jacobTarget = parseFloat(document.getElementById("jacobTarget").value);
-      sidharthTarget = parseFloat(document.getElementById("sidharthTarget").value);
-      renderChart();
-    }
-
-    function renderChart() {
-      const labels = tableData.map(row => row.Date).reverse();
-      const jacobData = tableData.map(row => parseFloat(row.Jacob) || null).reverse();
-      const sidharthData = tableData.map(row => parseFloat(row.Sidharth) || null).reverse();
-
-      const forecast = (data) => {
-        const points = data
-          .map((y, i) => [i, y])
-          .filter(p => !isNaN(p[1]));
-        if (points.length < 2) return [];
-        const n = points.length;
-        const sumX = points.reduce((sum, p) => sum + p[0], 0);
-        const sumY = points.reduce((sum, p) => sum + p[1], 0);
-        const sumXY = points.reduce((sum, p) => sum + p[0] * p[1], 0);
-        const sumX2 = points.reduce((sum, p) => sum + p[0] * p[0], 0);
-        const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-        const intercept = (sumY - slope * sumX) / n;
-
-        const forecastPoints = [];
-        for (let i = data.length; i < data.length + 8; i++) {
-          forecastPoints.push(intercept + slope * i);
-        }
-        return forecastPoints;
-      }
-
-      const jacobForecast = forecast(jacobData);
-      const sidharthForecast = forecast(sidharthData);
-
-      const extendedLabels = [...labels, ...Array(jacobForecast.length).fill(0).map((_, i) => `+${i+1}w`)];
-
-      if (chart) chart.destroy();
-      chart = new Chart(document.getElementById("weightChart"), {
-        type: 'line',
-        data: {
-          labels: extendedLabels,
-          datasets: [
-            {
-              label: 'Jacob',
-              data: [...jacobData, ...jacobForecast],
-              borderColor: 'blue',
-              tension: 0.3,
-              pointRadius: 2
-            },
-            {
-              label: 'Sidharth',
-              data: [...sidharthData, ...sidharthForecast],
-              borderColor: 'green',
-              tension: 0.3,
-              pointRadius: 2
-            },
-            ...(jacobTarget ? [{
-              label: 'Jacob Target',
-              data: Array(extendedLabels.length).fill(jacobTarget),
-              borderColor: 'blue',
-              borderDash: [5, 5],
-              pointRadius: 0
-            }] : []),
-            ...(sidharthTarget ? [{
-              label: 'Sidharth Target',
-              data: Array(extendedLabels.length).fill(sidharthTarget),
-              borderColor: 'green',
-              borderDash: [5, 5],
-              pointRadius: 0
-            }] : [])
-          ]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { position: 'top' },
-            title: { display: true, text: 'Weight Trends with Forecast & Targets' }
-          }
-        }
-      });
-    }
-
-    loadData();
-  </script>
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Tableau Data Analyst Training. All rights reserved.</p>
+    </div>
+  </footer>
 </body>
 </html>
